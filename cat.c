@@ -26,27 +26,24 @@ cat_flags pars_flags(int argc, char *argv[])
     {
         if( argv[count][0] == '-' )
         {
-            ach = strchr(argv[count], 'b');
-            if (ach != NULL)
-                my_cat_flags.b_flag = 1;
-            ach = strchr(argv[count], 'e');
-            if (ach != NULL)
-                my_cat_flags.e_flag = 1;
-            ach = strchr(argv[count], 'n');
-            if (ach != NULL)
-                my_cat_flags.n_flag = 1;
-            ach = strchr(argv[count], 's');
-            if (ach != NULL)
-                my_cat_flags.s_flag = 1;
-            ach = strchr(argv[count], 't');
-            if (ach != NULL)
-                my_cat_flags.t_flag = 1;
-            if (my_cat_flags.b_flag == 0 && my_cat_flags.e_flag == 0 && 
-            my_cat_flags.n_flag == 0 && my_cat_flags.s_flag == 0 &&
-                my_cat_flags.t_flag == 0)
+            for(int n = 1; argv[count][n]; n++)
             {
-                printf("Invalid flag\n"); // сделать нормальный вывод ошибок
-                exit(2) ; // ?? агрумент ошибки
+                if ( argv[count][n] == 'b')
+                   my_cat_flags.b_flag = 1;
+                else if ( argv[count][n] == 'e' )
+                    my_cat_flags.e_flag = 1;
+                else if ( argv[count][n] == 'n' )
+                    my_cat_flags.n_flag = 1;
+                else if ( argv[count][n] == 's' )
+                    my_cat_flags.s_flag = 1;
+                else if ( argv[count][n] == 't' )
+                    my_cat_flags.t_flag = 1;
+                else 
+                {
+                    printf("cat: invalid option -- %c\n", argv[count][n]);
+                    printf("Try 'cat --help' for more information.\n"); // доделать help
+                    exit(EXIT_FAILURE);
+                }
             }    
         } 
     }
@@ -59,7 +56,7 @@ int main(int argc, char *argv[])
 
     int num = 1;
     int chr;
-    int chr_next;
+    int chr_to;
     int flag;
     cat_flags my_cat_flags = {0, 0, 0, 0, 0};
     my_cat_flags = pars_flags(argc, argv);
@@ -75,16 +72,29 @@ int main(int argc, char *argv[])
             }
             else
             {
-                if (my_cat_flags.n_flag)
-                    printf("%d ", num++); 
                 while((chr = getc(file)) != EOF )
                 {
+                    if ((my_cat_flags.n_flag || my_cat_flags.b_flag) && chr && num == 1 )
+                        printf("%d ", num++);
                     if (my_cat_flags.e_flag && chr == '\n')
                         printf("%s", "$"); 
-                    fprintf(stdout, "%c", chr_next);
-                    if (my_cat_flags.n_flag && chr == '\n')
+                    if (my_cat_flags.n_flag && chr_to == '\n')
+                    {
                         printf("%d ", num++);
-                    chr_next = chr; 
+                        chr_to = 0;
+                    }
+                    if (my_cat_flags.b_flag && chr != '\n' && chr_to == '\n' )
+                    {
+                        printf("%d ", num++);
+                         chr_to = 0;
+                    }
+                    if (my_cat_flags.t_flag && chr == 9)
+                        fprintf(stdout, "%s", "^I");
+                    else
+                    {
+                        fprintf(stdout, "%c", chr);
+                        chr_to = chr;
+                    }
                 }
                 fclose(file);
             }
