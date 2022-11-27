@@ -63,7 +63,7 @@ cat_flags pars_flags(int argc, char *argv[])
                 else 
                 {
                     printf("cat: invalid option -- %c\n", argv[count][n]);
-                    printf("Try 'cat --help' for more information.\n"); // доделать help
+                    printf("Try 'cat --help' for more information.\n"); 
                     exit(EXIT_FAILURE);
                 }
             }   
